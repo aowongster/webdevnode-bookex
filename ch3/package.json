@@ -1,0 +1,27 @@
+{
+  "name": "meadowlark",
+  "version": "0.0.0",
+  "description": "web dev with node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:aowongster/webdevnode-bookex.git"
+  },
+  "keywords": [
+    "node",
+    "js"
+  ],
+  "author": "Alistair Wong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aowongster/webdevnode-bookex/issues"
+  },
+  "homepage": "https://github.com/aowongster/webdevnode-bookex",
+  "dependencies": {
+    "express": "^4.10.6",
+    "express3-handlebars": "^0.5.2"
+  }
+}
