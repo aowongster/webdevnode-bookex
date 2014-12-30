@@ -6,15 +6,17 @@ var app = express();
 var handlebars = require('express3-handlebars').create({defaultLayout:'main'});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
-
 app.set('port', 3000);
 
+app.use(express.static(__dirname +'/public'));
+// routes
+
 app.get('/', function(req, res){
-  app.render('home');
+  res.render('home');
 });
 
 app.get('/about', function(req, res){
-  app.render('about');
+  res.render('about');
 });
 
 app.use(function(req, res, next){
