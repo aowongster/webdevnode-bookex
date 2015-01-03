@@ -1,6 +1,7 @@
 var express = require('express');
 var http = require('http');
 var fortune = require('./lib/fortune.js');
+var weather = require('./lib/weather.js');
 
 // handlebars vs jade
 
@@ -14,6 +15,9 @@ app.use(express.static(__dirname +'/public'));
 app.use(function(req, res, next){
   res.locals.showTests = app.get('env') !== 'production' &&
     req.query.test === '1';
+
+  if(!res.locals.partials) res.locals.partials = {};
+  res.locals.partials.weather = weather.getWeatherData();
   next();
 });
 
