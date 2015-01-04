@@ -6,7 +6,17 @@ var weather = require('./lib/weather.js');
 // handlebars vs jade
 
 var app = express();
-var handlebars = require('express3-handlebars').create({defaultLayout:'main'});
+var handlebars = require('express3-handlebars').create({
+  defaultLayout:'main',
+  helpers: {
+    section: function(name, options){
+      if(!this._sections) this._sections = {};
+      this._sections[name] = options.fn(this);
+      return null;
+    }
+  }
+});
+
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 3000);
