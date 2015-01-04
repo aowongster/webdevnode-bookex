@@ -58,6 +58,18 @@ app.get('/inject', function(req,res){
   res.render('inject');
 });
 
+app.get('/jsonreader', function(req,res){
+  res.render('jsonreader');
+});
+
+app.get('/ajax/madLib', function(req, res){
+  res.json({
+    animal: 'squirrel',
+    bodyPart: 'tail',
+    adjective: 'bushy',
+    noun: 'heck'
+  });
+});
 // end routes
 
 app.use(function(req, res, next){

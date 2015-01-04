@@ -1,0 +1,41 @@
+{{# section 'head'}}
+  <script id="madLibTemplate" type="text/x-handlebars-template">
+  Marry had a little {{animal}}, its {{bodyPart}}
+  was {{adjective}} as {{noun}}
+  </script>
+{{/section}}
+
+<div id="madLib"></div>
+<button id="btnMadLib">Generate Mad-Lib</button>
+<button id="btnMadLibAjax">Generate Mad Lib Ajax</button>
+
+  <script>
+  var madLibTemplate = Handlebars.compile(
+    $('#madLibTemplate').html());
+  </script>
+
+{{# section 'jquery'}}
+<script>
+  $(document).ready(function(){
+    $('#btnMadLib').on('click', function(evt){
+      evt.preventDefault();
+      $('#madLib').html(madLibTemplate({
+        animal : 'basilisk',
+        bodyPart : 'tail',
+        adjective: 'sharp',
+        noun: 'a needle'
+      })
+      );
+    });
+
+    $('#btnMadLibAjax').on('click', function(evt){
+      evt.preventDefault();
+      $.ajax('/ajax/madLib', {
+        success: function(data){
+          $('#madLib').html(madLibTemplate(data));
+        }
+      });
+    });
+  });
+</script>
+{{/section}}
