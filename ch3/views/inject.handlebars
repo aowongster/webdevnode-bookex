@@ -1,4 +1,5 @@
-{{section 'head'}}
+{{# section 'head'}}
+  <!-- we want Google to ignore this page -->
   <meta name="robots" content="noindex">
 {{/section}}
 
@@ -6,7 +7,7 @@
 <p> testing some jquery stuff</p>
 
 
-{{section 'jquery'}}
+{{# section 'jquery'}}
   <script>
     $('document').ready(function(){
       $('h1').html('jquery works');

@@ -54,6 +54,10 @@ app.get('/tours/request-group-rate', function(req,res){
   res.render('tours/request-group-rate');
 });
 
+app.get('/inject', function(req,res){
+  res.render('inject');
+});
+
 // end routes
 
 app.use(function(req, res, next){
