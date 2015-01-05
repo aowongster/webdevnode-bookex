@@ -21,6 +21,7 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 3000);
 
+app.use(require('body-parser')());
 app.use(express.static(__dirname +'/public'));
 app.use(function(req, res, next){
   res.locals.showTests = app.get('env') !== 'production' &&
@@ -70,12 +71,28 @@ app.get('/ajax/madLib', function(req, res){
     noun: 'heck'
   });
 });
+
+app.get('/enter', function(req, res){
+  res.render('enter');
+});
+
+
 // end routes
+app.post('/process', function(req, res){
+  if(req.xhr || req.accepts('hson,html') ==='json'){
+    res.send({success: true});
+  }
+  else {
+    res.redirect(303, '/thank-you');
+  }
+
+});
 
 app.use(function(req, res, next){
   res.status(404);
   res.render('404');
 });
+
 
 
 http.createServer(app).listen(app.get('port'), function(){

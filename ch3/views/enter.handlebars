@@ -1,0 +1,34 @@
+<div class="formContainer">
+  <form id="formTest" action="/process" method="POST">
+    <input type="hidden" name="hush" value="hidden, but not secret">
+    <div>
+      <label for="fieldName">Name: </label>
+      <input type="text" id="fieldName" name="name">
+    </div>
+    <div>
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+</div>
+<script>
+$('#formTest').on('submit', function(evt){
+  evt.preventDefault();
+  var action = $(this).attr('action');
+  var $container = $(this).closest('.formContainer');
+  $.ajax({
+    url: action,
+    type: 'POST',
+    success: function(data){
+      if(data.success){
+        $container.html('Thank you!');
+      }
+      else{
+        $container.html('There was a problem.');
+      }
+    },
+    error: function(){
+      $container.html('There was a problem.');
+    }
+  });
+});
+</script>
