@@ -1,5 +1,6 @@
 var express = require('express');
 var http = require('http');
+var formidable = require('formidable');
 var fortune = require('./lib/fortune.js');
 var weather = require('./lib/weather.js');
 
@@ -76,6 +77,9 @@ app.get('/enter', function(req, res){
   res.render('enter');
 });
 
+app.get('/formtest', function(req, res){
+  res.render('formtest');
+});
 
 // end routes
 app.post('/process', function(req, res){
@@ -85,15 +89,24 @@ app.post('/process', function(req, res){
   else {
     res.redirect(303, '/thank-you');
   }
+});
 
+app.post('/upload', function(req, res){
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files){
+    if(err) return res.redirect(303, '/error');
+    console.log('received fields:');
+    console.log(fields);
+    console.log('received files:');
+    console.log(files);
+    res.redirect(303, '/thank-you');
+    });
 });
 
 app.use(function(req, res, next){
   res.status(404);
   res.render('404');
 });
-
-
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log( 'Express started on http://localhost:' +
