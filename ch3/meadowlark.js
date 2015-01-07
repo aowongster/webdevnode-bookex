@@ -23,14 +23,17 @@ app.set('view engine', 'handlebars');
 app.set('port', 3000);
 
 app.use(require('cookie-parser')('law badly personal seldom'));
+app.use(require('express-session')());
 app.use(require('body-parser')());
 app.use(express.static(__dirname +'/public'));
 app.use(function(req, res, next){
   res.locals.showTests = app.get('env') !== 'production' &&
     req.query.test === '1';
-
   if(!res.locals.partials) res.locals.partials = {};
   res.locals.partials.weather = weather.getWeatherData();
+
+  res.locals.flash = req.session.flash
+  delete req.session.flash;
   next();
 });
 
