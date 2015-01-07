@@ -22,6 +22,7 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 3000);
 
+app.use(require('cookie-parser')('law badly personal seldom'));
 app.use(require('body-parser')());
 app.use(express.static(__dirname +'/public'));
 app.use(function(req, res, next){
