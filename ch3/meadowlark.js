@@ -1,6 +1,8 @@
 var express = require('express');
 var http = require('http');
+var logger = require('morgan');
 var formidable = require('formidable');
+var bodyParser = require('body-parser');
 var fortune = require('./lib/fortune.js');
 var weather = require('./lib/weather.js');
 
@@ -23,8 +25,12 @@ app.set('view engine', 'handlebars');
 app.set('port', 3000);
 
 app.use(require('cookie-parser')('law badly personal seldom'));
-app.use(require('express-session')());
-app.use(require('body-parser')());
+app.use(require('express-session')({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+      }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(__dirname +'/public'));
 app.use(function(req, res, next){
   res.locals.showTests = app.get('env') !== 'production' &&
@@ -32,10 +38,19 @@ app.use(function(req, res, next){
   if(!res.locals.partials) res.locals.partials = {};
   res.locals.partials.weather = weather.getWeatherData();
 
-  res.locals.flash = req.session.flash
+  res.locals.flash = req.session.flash;
   delete req.session.flash;
   next();
 });
+
+switch(app.get('env')){
+  case 'development':
+    app.use(logger('dev'));
+    break;
+  case 'production':
+    app.use(logger({path: __dirname + '/log/requests.log'}));
+    break;
+}
 
 // routes
 app.get('/', function(req, res){
@@ -112,7 +127,15 @@ app.use(function(req, res, next){
   res.render('404');
 });
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log( 'Express started on http://localhost:' +
-    app.get('port') + '; press Ctrl -c to terminate.');
-});
+function startServer(){
+  http.createServer(app).listen(app.get('port'), function(){
+    console.log( 'Express started on http://localhost:' +
+      app.get('port') + '; press Ctrl -c to terminate.');
+  });
+}
+
+if(require.main === module){
+  startServer();
+} else {
+  module.exports = startServer;
+}
