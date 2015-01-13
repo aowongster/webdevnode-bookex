@@ -31,6 +31,7 @@
     "formidable": "^1.0.16",
     "loadtest": "^1.2.4",
     "logger": "0.0.1",
+    "mongoose": "^3.8.21",
     "morgan": "^1.5.1",
     "nodemailer": "^1.3.0"
   },

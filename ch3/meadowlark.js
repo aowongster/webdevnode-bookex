@@ -5,6 +5,9 @@ var formidable = require('formidable');
 var bodyParser = require('body-parser');
 var fortune = require('./lib/fortune.js');
 var weather = require('./lib/weather.js');
+var credentials = require('./credentials.js');
+var mongoose = require('mongoose');
+
 
 // handlebars vs jade
 
@@ -43,21 +46,26 @@ app.use(function(req, res, next){
   next();
 });
 
+var options = {
+  server: {
+    socketOptions: { keepAlive: 1}
+  }
+};
 switch(app.get('env')){
   case 'development':
     app.use(logger('dev'));
+    mongoose.connect(credentials.mongo.development.connectionString, options);
     break;
   case 'production':
+    mongoose.connect(credentials.mongo.production.connectionString, options);
     app.use(logger({path: __dirname + '/log/requests.log'}));
     break;
+  default:
+    throw new Error('unknown execution environment: ' +app.get('env'));
 }
 
 // routes
-app.get('/', function(req, res){
-  res.render('home');
-});
-
-app.get('/about', function(req, res){
+app.get('/', function(req, res){ res.render('home'); }); app.get('/about', function(req, res){
   res.render('about', {
     fortune: fortune.getFortune(),
     pageTestScript: '/qa/tests-about.js'
@@ -100,7 +108,12 @@ app.get('/formtest', function(req, res){
   res.render('formtest');
 });
 
-// end routes
+app.get('/contest/vacation-photo', function(req, res) {
+  var now = new Date();
+  res.render('vacation-photo-contest', {year: now.getFullYear(), month: now.getMonth() });
+});
+
+// end get routes
 app.post('/process', function(req, res){
   if(req.xhr || req.accepts('hson,html') ==='json'){
     res.send({success: true});
@@ -122,6 +135,42 @@ app.post('/upload', function(req, res){
     });
 });
 
+
+function vacationPhotoContest(email, year, month, photoPath){
+  // TODO more later
+}
+
+var formidable = require('formidable');
+
+app.post('/contest/vacation-photo/:year/:month', function(req, res){
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files){
+    if(err) return res.redirect(303, '/error');
+    if(err) {
+      res.session.flash = {
+        type: 'danger',
+        intro: 'Ooops!',
+        message: "There was an error processing your submissions",
+      };
+      return res.redirect(303, '/contest/vacation-photo');
+    }
+    var photo = files.photo;
+    var dir = __dirname + '/data/vacation-photo-contest/' + Date.now();
+    var path = dir + '/' + photo.name;
+    fs.mkdirSync(dir);
+    fs.renameSync(photo.path, dir + '/' + photo.name);
+    vacationPhotoContest(fields.email,
+      req.params.year, req.params.month, path);
+    req.session.flash = {
+      type: 'sucess',
+      intro: 'Good Luck!',
+      message: 'You have been entered into the contest.',
+    };
+    return res.redirect(303, '/contest/vacation-photo/entries');
+  });
+});
+
+// catch all 404 handler
 app.use(function(req, res, next){
   res.status(404);
   res.render('404');
