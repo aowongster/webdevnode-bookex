@@ -1,0 +1,19 @@
+<h1>Vacations</h1>
+<form method="POST">
+  {{#each vacations}}
+    <div class="vacation">
+      <h3>{{name}}</h3>
+      <p>{{description}}</p>
+      {{#if inSeason}}
+        <span class-"price">{{price}}</span>
+        <button name="purchaseSku" value="{{sku}}">Buy Now!</button>
+      {{else}}
+        <span class="outOfSeason">We're sorry, this vacation is currently not in season.
+        {{! The "notify me when this vacation is in is next"}}
+        <a href="/notify-me-when-in-season?sku={{sku}}">Notify me when this vacation is in season.</a>
+      {{/if}}
+    </div>
+  {{/each}}
+</form>
+
+

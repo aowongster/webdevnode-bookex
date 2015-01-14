@@ -6,8 +6,43 @@ var bodyParser = require('body-parser');
 var fortune = require('./lib/fortune.js');
 var weather = require('./lib/weather.js');
 var credentials = require('./credentials.js');
+var Vacation = require('./models/vacations.js');
 var mongoose = require('mongoose');
 
+// copy pasta db building:
+Vacation.find(function(err, vacations){ if(vacations.length) return;
+new Vacation({
+name: 'Hood River Day Trip',
+category: 'Day Trip',
+sku: 'HR199',
+description: 'Spend a day sailing on the Columbia and ' +
+'enjoying craft beers in Hood River!',
+priceInCents: 9995,
+tags: ['day trip', 'hood river', 'sailing', 'windsurfing', 'breweries'], inSeason: true,
+available: true,
+packagesSold: 0,
+}).save();
+
+new Vacation({
+name: 'Oregon Coast Getaway',
+category: 'Weekend Getaway',
+sku: 'OC39',
+description: 'Enjoy the ocean air and quaint coastal towns!', priceInCents: 269995,
+tags: ['weekend getaway', 'oregon coast', 'beachcombing'], inSeason: false,
+available: true,
+packagesSold: 0,
+}).save();
+new Vacation({
+name: 'Weekend in Bend',
+category: 'Weekend Getaway',
+sku: 'B99',
+description: 'Experience the thrill of skiing and hiking in the high desert.', priceInCents: 289995,
+tags: ['weekend getaway', 'bend', 'high desert', 'hiking', 'skiing'], inSeason: true,
+available: false,
+packagesSold: 0,
+notes: 'The tour guide is currently recovering fro a skiing accident.',
+        }).save();
+    });
 
 // handlebars vs jade
 
@@ -111,6 +146,45 @@ app.get('/formtest', function(req, res){
 app.get('/contest/vacation-photo', function(req, res) {
   var now = new Date();
   res.render('vacation-photo-contest', {year: now.getFullYear(), month: now.getMonth() });
+});
+
+app.get('/vacations', function(req,res){
+    Vacation.find({ available: true}, function(err, vacations){
+      var context = {
+        vacations: vacations.map(function(vacation){
+                     return {
+                      sku: vacation.sku,
+                      name: vacation.name,
+                      description: vacation.description,
+                      price: vacation.getDisplayPrice(),
+                      inSeason: vacation.inSeason,
+                     };
+                  })
+      };
+      res.render('vacations', context);
+      });
+});
+
+app.post('/vacations', function(req, res){
+    Vacation.find({ sku: req.body.purchaseSku }, function(err, vacations){
+      if(err || !vacations.length) {
+        req.session.flash = {
+          type: 'warning',
+          intro: 'Oops!',
+          message: 'Something went wrong with you reservation; '+
+            'please <a href="/contact">contact us</a>',
+        };
+        return res.redirect(303, '/vacations');
+      }
+      vacations[0].packagesSold++;
+      vacations[0].save();
+      req.session.flash = {
+        type: 'success',
+        intro: 'Thank you! ',
+        message: 'Your vacation has been booked.',
+      };
+      res.redirect(303, '/vacations');
+    });
 });
 
 // end get routes
