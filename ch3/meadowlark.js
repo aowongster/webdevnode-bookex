@@ -7,42 +7,43 @@ var fortune = require('./lib/fortune.js');
 var weather = require('./lib/weather.js');
 var credentials = require('./credentials.js');
 var Vacation = require('./models/vacations.js');
+var VacationInSeasonListener = require('./models/vacationInSeasonListener.js')
 var mongoose = require('mongoose');
 
 // copy pasta db building:
 Vacation.find(function(err, vacations){ if(vacations.length) return;
-new Vacation({
-name: 'Hood River Day Trip',
-category: 'Day Trip',
-sku: 'HR199',
-description: 'Spend a day sailing on the Columbia and ' +
-'enjoying craft beers in Hood River!',
-priceInCents: 9995,
-tags: ['day trip', 'hood river', 'sailing', 'windsurfing', 'breweries'], inSeason: true,
-available: true,
-packagesSold: 0,
-}).save();
+  new Vacation({
+    name: 'Hood River Day Trip',
+    category: 'Day Trip',
+    sku: 'HR199',
+    description: 'Spend a day sailing on the Columbia and ' +
+    'enjoying craft beers in Hood River!',
+    priceInCents: 9995,
+    tags: ['day trip', 'hood river', 'sailing', 'windsurfing', 'breweries'], inSeason: true,
+    available: true,
+    packagesSold: 0,
+  }).save();
 
-new Vacation({
-name: 'Oregon Coast Getaway',
-category: 'Weekend Getaway',
-sku: 'OC39',
-description: 'Enjoy the ocean air and quaint coastal towns!', priceInCents: 269995,
-tags: ['weekend getaway', 'oregon coast', 'beachcombing'], inSeason: false,
-available: true,
-packagesSold: 0,
-}).save();
-new Vacation({
-name: 'Weekend in Bend',
-category: 'Weekend Getaway',
-sku: 'B99',
-description: 'Experience the thrill of skiing and hiking in the high desert.', priceInCents: 289995,
-tags: ['weekend getaway', 'bend', 'high desert', 'hiking', 'skiing'], inSeason: true,
-available: false,
-packagesSold: 0,
-notes: 'The tour guide is currently recovering fro a skiing accident.',
-        }).save();
-    });
+  new Vacation({
+    name: 'Oregon Coast Getaway',
+    category: 'Weekend Getaway',
+    sku: 'OC39',
+    description: 'Enjoy the ocean air and quaint coastal towns!', priceInCents: 269995,
+    tags: ['weekend getaway', 'oregon coast', 'beachcombing'], inSeason: false,
+    available: true,
+    packagesSold: 0,
+  }).save();
+  new Vacation({
+    name: 'Weekend in Bend',
+    category: 'Weekend Getaway',
+    sku: 'B99',
+    description: 'Experience the thrill of skiing and hiking in the high desert.', priceInCents: 289995,
+    tags: ['weekend getaway', 'bend', 'high desert', 'hiking', 'skiing'], inSeason: true,
+    available: false,
+    packagesSold: 0,
+    notes: 'The tour guide is currently recovering fro a skiing accident.',
+  }).save();
+});
 
 // handlebars vs jade
 
@@ -187,6 +188,35 @@ app.post('/vacations', function(req, res){
     });
 });
 
+// mongoose db form handlers
+app.get('/notify-me-when-in-season', function(req,res){
+  res.render('notify-me-when-in-season', {sku: req.query.sku});
+});
+
+app.post('/notify-me-when-in-season', function(req, res){
+    VacationInSeasonListener.update(
+      {email: req.body.email},
+      {$push: {skus: req.body.sku} },
+      {upsert: true}
+      , function(err){
+        if(err){
+          req.session.flash = {
+            type:'danger',
+            intro: 'Ooops!',
+            message: 'There was an error processing your request.',
+          };
+          return res.redirect(303, '/vacations');
+        }
+      req.session.flash = {
+        type: 'success',
+        intro: 'Thank you!',
+        message: 'You will be notified when this vacation is in season.',
+
+      };
+      return res.redirect(303, '/vacations');
+
+    });
+});
 // end get routes
 app.post('/process', function(req, res){
   if(req.xhr || req.accepts('hson,html') ==='json'){
