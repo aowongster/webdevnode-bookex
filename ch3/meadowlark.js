@@ -7,7 +7,7 @@ var fortune = require('./lib/fortune.js');
 var weather = require('./lib/weather.js');
 var credentials = require('./credentials.js');
 var Vacation = require('./models/vacations.js');
-var VacationInSeasonListener = require('./models/vacationInSeasonListener.js')
+var VacationInSeasonListener = require('./models/vacationInSeasonListener.js');
 var mongoose = require('mongoose');
 
 // copy pasta db building:
@@ -197,8 +197,8 @@ app.post('/notify-me-when-in-season', function(req, res){
     VacationInSeasonListener.update(
       {email: req.body.email},
       {$push: {skus: req.body.sku} },
-      {upsert: true}
-      , function(err){
+      {upsert: true},
+      function(err){
         if(err){
           req.session.flash = {
             type:'danger',
